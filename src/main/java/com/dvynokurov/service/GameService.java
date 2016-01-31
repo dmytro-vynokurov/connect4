@@ -1,13 +1,14 @@
 package com.dvynokurov.service;
 
-import com.dvynokurov.model.*;
+import com.dvynokurov.model.Game;
+import com.dvynokurov.model.GameStatus;
+import com.dvynokurov.model.Grid;
+import com.dvynokurov.model.Player;
 import com.dvynokurov.repository.GameRepository;
-import com.dvynokurov.util.exceptions.ColumnFullException;
 import com.dvynokurov.util.exceptions.GameDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,6 +29,9 @@ public class GameService {
 
     @Autowired
     GridGenerationService gridGenerationService;
+
+    @Autowired
+    GridFillingService gridFillingService;
 
     @Autowired
     AIPlayer aiPlayer;
@@ -63,18 +67,20 @@ public class GameService {
         updateAndPersistGame(firstPlayerMove, game, Player.FIRST);
         if(gameFinishedCheckingService.checkFinished(grid, Player.FIRST)) {
             game.setGameStatus(GameStatus.FIRST_PLAYER_WON);
+            gameLocks.remove(gameId);
         }else{
             int secondPlayerMove = aiPlayer.getComputerMove(grid);
             updateAndPersistGame(secondPlayerMove, game, Player.SECOND);
             if (gameFinishedCheckingService.checkFinished(grid, Player.SECOND)) {
                 game.setGameStatus(GameStatus.SECOND_PLAYER_WON);
+                gameLocks.remove(gameId);
             }
         }
         return game;
     }
 
     private void updateAndPersistGame(int move, Game game, Player player) {
-        putDiskToColumn(game.getGrid(), move, player);
+        gridFillingService.putDiskToColumn(game.getGrid(), move, player);
         setLastMove(game, player, move);
         gameRepository.save(game);
     }
@@ -87,31 +93,9 @@ public class GameService {
         }
     }
 
-    private void putDiskToColumn(Grid grid, int columnIndex, Player player) {
-        Assert.isTrue(columnIndexIsValid(columnIndex), "Column index is out of range");
-        Assert.notNull(player, "Owner should be playable");
-
-        Column column = grid.getColumns().get(columnIndex);
-        putDisc(column, player);
-    }
-
-    private boolean columnIndexIsValid(int columnIndex) {
-        return columnIndex >= 0 && columnIndex <= gridWidth;
-    }
-
-    private Cell getFirstFreeCell(Column column){
-        for (Cell cell : column.getCells()) {
-            if(cell.getOwner()==null) return cell;
-        }
-        throw new ColumnFullException();
-    }
-
-    private void putDisc(Column column, Player player) {
-        Cell firstFreeCell = getFirstFreeCell(column);
-        firstFreeCell.setOwner(player);
-    }
-
     public Game getGame(UUID gameId) {
-        return gameRepository.findOneById(gameId);
+        Game oneById = gameRepository.findOneById(gameId);
+        if(oneById==null) throw new GameDoesNotExistException();
+        return oneById;
     }
 }
