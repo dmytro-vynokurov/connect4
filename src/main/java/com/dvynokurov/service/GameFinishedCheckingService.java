@@ -11,6 +11,10 @@ public class GameFinishedCheckingService {
 
     private static final int FOUR = 4;
 
+    public static final int NO_OWNER_INDEX = 0;
+    public static final int FIRST_PLAYER_INDEX = 1;
+    public static final int SECOND_PLAYER_INDEX = 2;
+
     public boolean checkFinished(Grid grid, Player player) {
         int[][] matrix = convertToMatrix(grid);
         int playerIndex = getPlayerIndex(player);
@@ -18,8 +22,8 @@ public class GameFinishedCheckingService {
     }
 
     private int getPlayerIndex(Player player) {
-        if(player.equals(Player.FIRST)) return 1;
-        else return 2;
+        if(player.equals(Player.FIRST)) return FIRST_PLAYER_INDEX;
+        else return SECOND_PLAYER_INDEX;
     }
 
     private boolean playerWon(int[][] matrix, int playerIndex) {
@@ -97,7 +101,7 @@ public class GameFinishedCheckingService {
     }
 
     private int encodeCellOwner(Cell cell) {
-        if(cell.getOwner()==null) return 0;
+        if(cell.getOwner()==null) return NO_OWNER_INDEX;
         return getPlayerIndex(cell.getOwner());
     }
 
