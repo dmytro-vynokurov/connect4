@@ -20,4 +20,20 @@ public class Grid {
     public int getHeight() {
         return getColumns().get(0).getCells().size();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Grid grid = (Grid) o;
+
+        return !(columns != null ? !columns.equals(grid.columns) : grid.columns != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return columns != null ? columns.hashCode() : 0;
+    }
 }
