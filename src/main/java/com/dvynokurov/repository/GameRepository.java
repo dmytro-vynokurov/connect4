@@ -15,4 +15,8 @@ public class GameRepository {
     public void save(Game game) {
         games.put(game.getId(), game);
     }
+
+    public Game findOneById(UUID gameId) {
+        return games.get(gameId);
+    }
 }

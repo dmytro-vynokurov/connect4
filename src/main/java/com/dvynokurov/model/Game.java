@@ -5,10 +5,12 @@ import java.util.UUID;
 public class Game {
     private UUID id;
     private Grid grid;
+    private GameStatus gameStatus;
 
-    public Game(UUID id, Grid grid) {
+    public Game(UUID id, Grid grid, GameStatus gameStatus) {
         this.id = id;
         this.grid = grid;
+        this.gameStatus = gameStatus;
     }
 
     public UUID getId() {
@@ -17,5 +19,9 @@ public class Game {
 
     public Grid getGrid() {
         return grid;
+    }
+
+    public GameStatus getGameStatus() {
+        return gameStatus;
     }
 }

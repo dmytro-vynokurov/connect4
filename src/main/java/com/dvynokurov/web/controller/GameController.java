@@ -1,13 +1,14 @@
 package com.dvynokurov.web.controller;
 
+import com.dvynokurov.model.Game;
 import com.dvynokurov.service.GameService;
-import com.dvynokurov.web.dto.GameIdDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/game")
@@ -17,8 +18,16 @@ public class GameController {
     GameService gameService;
 
     @RequestMapping(value = "/initialize", method = RequestMethod.POST)
-    @ResponseStatus(value = HttpStatus.ACCEPTED)
-    public GameIdDto initializeGame(){
+    public Game initializeGame(){
         return gameService.createNewGame();
+    }
+
+    @RequestMapping(value = "/{gameId}/{columnNumber}", method = RequestMethod.POST)
+    public Game performPlayerMove(
+            @PathVariable("gameId") String gameId,
+            @PathVariable("columnNumber") int columnNumber
+    ){
+        UUID id = UUID.fromString(gameId);
+        return gameService.performPlayerMove(id, columnNumber);
     }
 }
