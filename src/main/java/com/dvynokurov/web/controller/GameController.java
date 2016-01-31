@@ -18,7 +18,7 @@ public class GameController {
     GameService gameService;
 
     @RequestMapping(value = "/initialize", method = RequestMethod.POST)
-    public Game initializeGame(){
+    public Game initializeGame() {
         return gameService.createNewGame();
     }
 
@@ -26,8 +26,13 @@ public class GameController {
     public Game performPlayerMove(
             @PathVariable("gameId") String gameId,
             @PathVariable("columnNumber") int columnNumber
-    ){
+    ) {
         UUID id = UUID.fromString(gameId);
         return gameService.performPlayerMove(id, columnNumber);
+    }
+
+    @RequestMapping(value = "/{gameId}", method = RequestMethod.GET)
+    public Game getGameStatus(@PathVariable("gameId") UUID gameId) {
+        return gameService.getGame(gameId);
     }
 }

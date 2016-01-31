@@ -2,17 +2,16 @@ package com.dvynokurov.model;
 
 public class Cell {
 
-    private Owner owner;
+    private Player owner;
 
     public Cell() {
-        this.owner = Owner.EMPTY;
     }
 
-    public Owner getOwner() {
+    public Player getOwner() {
         return owner;
     }
 
-    public void setOwner(Owner owner) {
+    public void setOwner(Player owner) {
         this.owner = owner;
     }
 }

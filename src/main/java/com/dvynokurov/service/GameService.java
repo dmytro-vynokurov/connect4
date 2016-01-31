@@ -31,6 +31,9 @@ public class GameService {
     @Autowired
     AIPlayer aiPlayer;
 
+    @Autowired
+    GameFinishedCheckingService gameFinishedCheckingService;
+
     private ConcurrentMap<UUID, ReentrantLock> gameLocks = new ConcurrentHashMap<>();
 
     public Game createNewGame(){
@@ -41,7 +44,6 @@ public class GameService {
         gameLocks.put(uuid, new ReentrantLock());
         return game;
     }
-
 
     public Game performPlayerMove(UUID gameId, int columnNumber){
         ReentrantLock lock = gameLocks.get(gameId);
@@ -54,48 +56,68 @@ public class GameService {
         }
     }
 
-    private Game safelyPerformPlayerMove(UUID gameId, int columnNumber) {
+    private Game safelyPerformPlayerMove(UUID gameId, int firstPlayerMove) {
         Game game = gameRepository.findOneById(gameId);
-        putDiskToColumn(game.getGrid(), columnNumber, Owner.FIRST);
-        int computerMove = aiPlayer.getComputerMove(game.getGrid());
-        putDiskToColumn(game.getGrid(), computerMove, Owner.SECOND);
-        gameRepository.save(game);
+        Grid grid = game.getGrid();
+        updateAndPersistGame(firstPlayerMove, game, Player.FIRST);
+        if(gameFinishedCheckingService.checkFinished(grid, Player.FIRST)) {
+            game.setGameStatus(GameStatus.FIRST_PLAYER_WON);
+        }else{
+            int secondPlayerMove = aiPlayer.getComputerMove(grid);
+            updateAndPersistGame(secondPlayerMove, game, Player.SECOND);
+            if (gameFinishedCheckingService.checkFinished(grid, Player.SECOND)) {
+                game.setGameStatus(GameStatus.SECOND_PLAYER_WON);
+            }
+        }
         return game;
+
+    }
+
+    private void updateAndPersistGame(int move, Game game, Player player) {
+        putDiskToColumn(game.getGrid(), move, player);
+        setLastMove(game, player, move);
+        gameRepository.save(game);
+    }
+
+    private void setLastMove(Game game, Player player, int move) {
+        if (player.equals(Player.FIRST)) {
+            game.setFirstPlayerLastMove(move);
+        }else {
+            game.setSecondPlayerLastMove(move);
+        }
     }
 
 
-    private boolean putDiskToColumn(Grid grid, int columnIndex, Owner owner) {
+    private boolean putDiskToColumn(Grid grid, int columnIndex, Player player) {
         Assert.isTrue(columnIndexIsValid(columnIndex), "Column index is out of range");
-        Assert.isTrue(ownerIsPlayable(owner), "Owner should be playable");
+        Assert.notNull(player, "Owner should be playable");
 
         Column column = grid.getColumns().get(columnIndex);
-        return putDisc(column, owner);
+        return putDisc(column, player);
     }
 
     private boolean columnIndexIsValid(int columnIndex) {
         return columnIndex >= 0 && columnIndex <= gridWidth;
     }
 
-    private boolean ownerIsPlayable(Owner owner){
-        return !owner.equals(Owner.EMPTY);
-    }
-
-
     private Cell getFirstFreeCell(Column column){
         for (Cell cell : column.getCells()) {
-            if(cell.getOwner().equals(Owner.EMPTY)) return cell;
+            if(cell.getOwner()==null) return cell;
         }
         return null;
     }
 
-    private boolean putDisc(Column column, Owner owner) {
+    private boolean putDisc(Column column, Player player) {
         Cell firstFreeCell = getFirstFreeCell(column);
         if(firstFreeCell == null) {
             return false;
         } else {
-            firstFreeCell.setOwner(owner);
+            firstFreeCell.setOwner(player);
             return true;
         }
     }
 
+    public Game getGame(UUID gameId) {
+        return gameRepository.findOneById(gameId);
+    }
 }

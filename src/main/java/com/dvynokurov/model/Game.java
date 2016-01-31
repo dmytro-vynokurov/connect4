@@ -6,6 +6,8 @@ public class Game {
     private UUID id;
     private Grid grid;
     private GameStatus gameStatus;
+    private Integer firstPlayerLastMove;
+    private Integer secondPlayerLastMove;
 
     public Game(UUID id, Grid grid, GameStatus gameStatus) {
         this.id = id;
@@ -21,7 +23,27 @@ public class Game {
         return grid;
     }
 
+    public void setGameStatus(GameStatus gameStatus) {
+        this.gameStatus = gameStatus;
+    }
+
     public GameStatus getGameStatus() {
         return gameStatus;
+    }
+
+    public Integer getFirstPlayerLastMove() {
+        return firstPlayerLastMove;
+    }
+
+    public void setFirstPlayerLastMove(Integer firstPlayerLastMove) {
+        this.firstPlayerLastMove = firstPlayerLastMove;
+    }
+
+    public Integer getSecondPlayerLastMove() {
+        return secondPlayerLastMove;
+    }
+
+    public void setSecondPlayerLastMove(Integer secondPlayerLastMove) {
+        this.secondPlayerLastMove = secondPlayerLastMove;
     }
 }
