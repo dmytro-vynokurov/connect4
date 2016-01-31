@@ -19,6 +19,12 @@ public class GridFillingService {
         putDisc(column, player);
     }
 
+    public boolean columnHasEmptyCells(Grid grid, int columnIndex){
+        Column column = grid.getColumns().get(columnIndex);
+        Cell firstFreeCell = getFirstFreeCell(column);
+        return firstFreeCell != null;
+    }
+
     private boolean columnIndexIsValid(int columnIndex, Grid grid) {
         return columnIndex >= 0 && columnIndex <= grid.getColumns().size();
     }
@@ -27,11 +33,12 @@ public class GridFillingService {
         for (Cell cell : column.getCells()) {
             if(cell.getOwner()==null) return cell;
         }
-        throw new ColumnFullException();
+        return null;
     }
 
     private void putDisc(Column column, Player player) {
         Cell firstFreeCell = getFirstFreeCell(column);
+        if(firstFreeCell==null) throw new ColumnFullException();
         firstFreeCell.setOwner(player);
     }
 }
