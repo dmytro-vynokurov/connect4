@@ -51,7 +51,7 @@ public class GameService {
     }
 
     public Game performPlayerMove(UUID gameId, int columnNumber){
-        ReentrantLock lock = gameLocks.get(gameId);
+        ReentrantLock lock = gameLocks.computeIfAbsent(gameId, uuid -> new ReentrantLock());
         if(lock==null) throw new GameDoesNotExistException();
         try {
             lock.lock();
