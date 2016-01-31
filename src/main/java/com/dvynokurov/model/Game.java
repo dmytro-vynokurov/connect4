@@ -6,9 +6,9 @@ public class Game {
     private UUID id;
     private Grid grid;
 
-    public Game(UUID id, int numberOfColumns, int columnSize) {
+    public Game(UUID id, Grid grid) {
         this.id = id;
-        this.grid = new Grid(numberOfColumns, columnSize);
+        this.grid = grid;
     }
 
     public UUID getId() {
