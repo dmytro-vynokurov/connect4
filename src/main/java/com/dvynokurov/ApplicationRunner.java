@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  * Game description can be found here: https://en.wikipedia.org/wiki/Connect_Four
  *
- * Application has included a simple AI player that does it's turn right after human player.
+ * Application has a simple AI player that does it's turn right after human player.
  */
 @SpringBootApplication
 public class ApplicationRunner {
