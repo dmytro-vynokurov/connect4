@@ -4,10 +4,10 @@ import java.util.UUID;
 
 public class Game {
     private UUID id;
-    private Grid grid;
     private GameStatus gameStatus;
     private Integer firstPlayerLastMove;
     private Integer secondPlayerLastMove;
+    private Grid grid;
 
     public Game(UUID id, Grid grid, GameStatus gameStatus) {
         this.id = id;
@@ -17,10 +17,6 @@ public class Game {
 
     public UUID getId() {
         return id;
-    }
-
-    public Grid getGrid() {
-        return grid;
     }
 
     public void setGameStatus(GameStatus gameStatus) {
@@ -45,5 +41,9 @@ public class Game {
 
     public void setSecondPlayerLastMove(Integer secondPlayerLastMove) {
         this.secondPlayerLastMove = secondPlayerLastMove;
+    }
+
+    public Grid getGrid() {
+        return grid;
     }
 }
