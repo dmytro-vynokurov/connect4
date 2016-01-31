@@ -55,7 +55,9 @@ public class GameService {
         if(lock==null) throw new GameDoesNotExistException();
         try {
             lock.lock();
-            return safelyPerformPlayerMove(gameId, columnNumber);
+            Game game = safelyPerformPlayerMove(gameId, columnNumber);
+            if(game.getGameStatus()!=GameStatus.IN_PROGRESS) gameLocks.remove(game.getId());
+            return game;
         }finally {
             lock.unlock();
         }
@@ -64,25 +66,23 @@ public class GameService {
     private Game safelyPerformPlayerMove(UUID gameId, int firstPlayerMove) {
         Game game = gameRepository.findOneById(gameId);
         Grid grid = game.getGrid();
-        updateAndPersistGame(firstPlayerMove, game, Player.FIRST);
+        updateGame(firstPlayerMove, game, Player.FIRST);
         if(gameFinishedCheckingService.checkFinished(grid, Player.FIRST)) {
             game.setGameStatus(GameStatus.FIRST_PLAYER_WON);
-            gameLocks.remove(gameId);
         }else{
             int secondPlayerMove = aiPlayer.getComputerMove(grid);
-            updateAndPersistGame(secondPlayerMove, game, Player.SECOND);
+            updateGame(secondPlayerMove, game, Player.SECOND);
             if (gameFinishedCheckingService.checkFinished(grid, Player.SECOND)) {
                 game.setGameStatus(GameStatus.SECOND_PLAYER_WON);
-                gameLocks.remove(gameId);
             }
         }
+        gameRepository.save(game);
         return game;
     }
 
-    private void updateAndPersistGame(int move, Game game, Player player) {
+    private void updateGame(int move, Game game, Player player) {
         gridFillingService.putDiskToColumn(game.getGrid(), move, player);
         setLastMove(game, player, move);
-        gameRepository.save(game);
     }
 
     private void setLastMove(Game game, Player player, int move) {
