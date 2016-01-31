@@ -2,11 +2,12 @@ package com.dvynokurov.web.controller;
 
 import com.dvynokurov.model.Game;
 import com.dvynokurov.service.GameService;
+import com.dvynokurov.util.exceptions.ColumnFullException;
+import com.dvynokurov.util.exceptions.GameDoesNotExistException;
+import com.dvynokurov.web.dto.ExceptionDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -24,15 +25,26 @@ public class GameController {
 
     @RequestMapping(value = "/{gameId}/{columnNumber}", method = RequestMethod.POST)
     public Game performPlayerMove(
-            @PathVariable("gameId") String gameId,
+            @PathVariable("gameId") UUID gameId,
             @PathVariable("columnNumber") int columnNumber
     ) {
-        UUID id = UUID.fromString(gameId);
-        return gameService.performPlayerMove(id, columnNumber);
+        return gameService.performPlayerMove(gameId, columnNumber);
     }
 
     @RequestMapping(value = "/{gameId}", method = RequestMethod.GET)
     public Game getGameStatus(@PathVariable("gameId") UUID gameId) {
         return gameService.getGame(gameId);
+    }
+
+    @ExceptionHandler(value = ColumnFullException.class)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public ExceptionDto handleColumnFullException() {
+        return new ExceptionDto("Column is full");
+    }
+
+    @ExceptionHandler(value = GameDoesNotExistException.class)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    public ExceptionDto handleGameDoesNotExistException() {
+        return new ExceptionDto("Game does not exist");
     }
 }

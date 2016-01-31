@@ -2,6 +2,7 @@ package com.dvynokurov.service;
 
 import com.dvynokurov.model.*;
 import com.dvynokurov.repository.GameRepository;
+import com.dvynokurov.util.exceptions.ColumnFullException;
 import com.dvynokurov.util.exceptions.GameDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,7 +71,6 @@ public class GameService {
             }
         }
         return game;
-
     }
 
     private void updateAndPersistGame(int move, Game game, Player player) {
@@ -87,13 +87,12 @@ public class GameService {
         }
     }
 
-
-    private boolean putDiskToColumn(Grid grid, int columnIndex, Player player) {
+    private void putDiskToColumn(Grid grid, int columnIndex, Player player) {
         Assert.isTrue(columnIndexIsValid(columnIndex), "Column index is out of range");
         Assert.notNull(player, "Owner should be playable");
 
         Column column = grid.getColumns().get(columnIndex);
-        return putDisc(column, player);
+        putDisc(column, player);
     }
 
     private boolean columnIndexIsValid(int columnIndex) {
@@ -104,17 +103,12 @@ public class GameService {
         for (Cell cell : column.getCells()) {
             if(cell.getOwner()==null) return cell;
         }
-        return null;
+        throw new ColumnFullException();
     }
 
-    private boolean putDisc(Column column, Player player) {
+    private void putDisc(Column column, Player player) {
         Cell firstFreeCell = getFirstFreeCell(column);
-        if(firstFreeCell == null) {
-            return false;
-        } else {
-            firstFreeCell.setOwner(player);
-            return true;
-        }
+        firstFreeCell.setOwner(player);
     }
 
     public Game getGame(UUID gameId) {
