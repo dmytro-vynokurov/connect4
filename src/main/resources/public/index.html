@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Connect 4</title>
+
+    <link rel="stylesheet" href="/css/main.css">
+
+    <script>
+        function getFromServer(url, callback) {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.open("GET", url, true);
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    var responseObject = JSON.parse(xmlhttp.responseText);
+                    callback(responseObject);
+                }
+            };
+            xmlhttp.send();
+        }
+        function postToServer(url, callback) {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.open("POST", url, true);
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4) {
+                    var responseObject = JSON.parse(xmlhttp.responseText);
+                    if (this.status == 200) {
+                        callback(responseObject);
+                    } else {
+                        alert(responseObject.message);
+                    }
+                }
+            };
+            xmlhttp.send();
+        }
+
+        function getLowestFreeCellInAColumn(columnId) {
+            var column = game.grid.columns[columnId];
+            console.log("with id "+columnId+" found column " + JSON.stringify(column));
+
+            for (var i = 0; i < 7; i++) {
+                if (!column.cells[i].owner)return i;
+            }
+            alert("shit happened: lowest cell cannot be found for column " + columnId);
+        }
+
+        function changeColor(rowId, columnId, color) {
+            var selector = "div.c4-rown" + rowId + " div.c4-coln" + columnId + " div.c4-circle";
+            var circleElement = document.querySelector(selector);
+            console.log("with selector " + selector + " found " + circleElement);
+            circleElement.className = "c4-circle c4-" + color;
+        }
+
+        function drawMove(color, move, callback) {
+            var lowestFreeCellInAColumn = move.row;
+            var currentRow = 6;
+            var interval = setInterval(function () {
+                console.log("Interval running with row: " + currentRow + " and col: " + move.column);
+                if (currentRow != 6) changeColor(currentRow, move.column, "white");
+                currentRow--;
+                changeColor(currentRow, move.column, color);
+                if (currentRow == lowestFreeCellInAColumn) {
+                    clearInterval(interval);
+                    if(callback) callback();
+                }
+                if (currentRow < 0) {
+                    clearInterval(interval);
+                    console.log("Shit happened - current row < 0");
+                }
+            }, 150);
+            console.log(color + " moves to " + move.column);
+        }
+
+        function userAction(columnId) {
+            if (!expectInput) return;
+            expectInput = false;
+            postToServer("/api/game/" + game.id + "/" + columnId, function (response) {
+                game = response;
+                console.log(JSON.stringify(game));
+                drawMove("red", game.firstPlayerLastMove, function(){
+                    drawMove("yellow", game.secondPlayerLastMove);
+                    expectInput = true;
+                });
+            });
+        }
+
+        var game;
+        var expectInput = false;
+
+        postToServer("/api/game/initialize", function (response) {
+            game = response;
+            expectInput = true;
+            console.log(JSON.stringify(game));
+        });
+    </script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <script src="http://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha256-/SIrNqv8h6QGKDuNoLGA4iret+kyesCkHGzVUUV0shc=" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="header clearfix">
+        <h3 class="text-muted">Connect 4</h3>
+    </div>
+
+
+    <div class="jumbotron">
+        <div class="row c4-rown5" >
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1 c4-coln0" onclick="userAction(0);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln1" onclick="userAction(1);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln2" onclick="userAction(2);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln3" onclick="userAction(3);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln4" onclick="userAction(4);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln5" onclick="userAction(5);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln6" onclick="userAction(6);"><div class="c4-circle c4-white"></div></div>
+        </div>
+        <div class="row c4-rown4" >
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1 c4-coln0" onclick="userAction(0);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln1" onclick="userAction(1);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln2" onclick="userAction(2);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln3" onclick="userAction(3);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln4" onclick="userAction(4);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln5" onclick="userAction(5);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln6" onclick="userAction(6);"><div class="c4-circle c4-white"></div></div>
+        </div>
+        <div class="row c4-rown3" >
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1 c4-coln0" onclick="userAction(0);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln1" onclick="userAction(1);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln2" onclick="userAction(2);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln3" onclick="userAction(3);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln4" onclick="userAction(4);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln5" onclick="userAction(5);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln6" onclick="userAction(6);"><div class="c4-circle c4-white"></div></div>
+        </div>
+        <div class="row c4-rown2" >
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1 c4-coln0" onclick="userAction(0);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln1" onclick="userAction(1);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln2" onclick="userAction(2);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln3" onclick="userAction(3);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln4" onclick="userAction(4);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln5" onclick="userAction(5);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln6" onclick="userAction(6);"><div class="c4-circle c4-white"></div></div>
+        </div>
+        <div class="row c4-rown1" >
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1 c4-coln0" onclick="userAction(0);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln1" onclick="userAction(1);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln2" onclick="userAction(2);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln3" onclick="userAction(3);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln4" onclick="userAction(4);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln5" onclick="userAction(5);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln6" onclick="userAction(6);"><div class="c4-circle c4-white"></div></div>
+        </div>
+        <div class="row c4-rown0" >
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1"></div>
+            <div class="col-sm-1 c4-coln0" onclick="userAction(0);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln1" onclick="userAction(1);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln2" onclick="userAction(2);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln3" onclick="userAction(3);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln4" onclick="userAction(4);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln5" onclick="userAction(5);"><div class="c4-circle c4-white"></div></div>
+            <div class="col-sm-1 c4-coln6" onclick="userAction(6);"><div class="c4-circle c4-white"></div></div>
+        </div>
+
+        <div class="footer">
+            <p>© 2016 Dmytro Vynokurov</p>
+        </div>
+
+    </div>
+
+
+</body>
+</html>

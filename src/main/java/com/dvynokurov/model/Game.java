@@ -5,8 +5,8 @@ import java.util.UUID;
 public class Game {
     private UUID id;
     private GameStatus gameStatus;
-    private Integer firstPlayerLastMove;
-    private Integer secondPlayerLastMove;
+    private Move firstPlayerLastMove;
+    private Move secondPlayerLastMove;
     private Grid grid;
 
     public Game(UUID id, Grid grid, GameStatus gameStatus) {
@@ -27,19 +27,19 @@ public class Game {
         return gameStatus;
     }
 
-    public Integer getFirstPlayerLastMove() {
+    public Move getFirstPlayerLastMove() {
         return firstPlayerLastMove;
     }
 
-    public void setFirstPlayerLastMove(Integer firstPlayerLastMove) {
+    public void setFirstPlayerLastMove(Move firstPlayerLastMove) {
         this.firstPlayerLastMove = firstPlayerLastMove;
     }
 
-    public Integer getSecondPlayerLastMove() {
+    public Move getSecondPlayerLastMove() {
         return secondPlayerLastMove;
     }
 
-    public void setSecondPlayerLastMove(Integer secondPlayerLastMove) {
+    public void setSecondPlayerLastMove(Move secondPlayerLastMove) {
         this.secondPlayerLastMove = secondPlayerLastMove;
     }
 

@@ -3,6 +3,7 @@ package com.dvynokurov.service;
 import com.dvynokurov.model.Game;
 import com.dvynokurov.model.GameStatus;
 import com.dvynokurov.model.Grid;
+import com.dvynokurov.model.Move;
 import com.dvynokurov.model.Player;
 import com.dvynokurov.repository.GameRepository;
 import com.dvynokurov.util.exceptions.GameDoesNotExistException;
@@ -82,12 +83,12 @@ public class GameService {
     }
 
     private void updateAndPersistGame(int move, Game game, Player player) {
-        gridFillingService.putDiskToColumn(game.getGrid(), move, player);
-        setLastMove(game, player, move);
+        final Move moveResult = gridFillingService.putDiskToColumn(game.getGrid(), move, player);
+        setLastMove(game, player, moveResult);
         gameRepository.save(game);
     }
 
-    private void setLastMove(Game game, Player player, int move) {
+    private void setLastMove(Game game, Player player, Move move) {
         if (player.equals(Player.FIRST)) {
             game.setFirstPlayerLastMove(move);
         }else {

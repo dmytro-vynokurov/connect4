@@ -1,0 +1,23 @@
+.c4-coln1, .c4-coln2, .c4-coln3, .c4-coln4, .c4-coln5, .c4-coln6, .c4-coln0 {
+    background-color: dodgerblue;
+    padding: 3%;
+}
+
+.c4-circle{
+    border-radius: 50%;
+    width: 100%;
+    height: auto;
+    padding-top: 100%;
+}
+
+.c4-white{
+    background: white;
+}
+
+.c4-red{
+    background: red;
+}
+
+.c4-yellow{
+    background: yellow;
+}
