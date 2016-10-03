@@ -9,6 +9,7 @@ import com.dvynokurov.util.exceptions.GameDoesNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,6 +52,7 @@ public class GameService {
     }
 
     public Game performPlayerMove(UUID gameId, int columnNumber){
+        Assert.isTrue(columnNumber >= 0 && columnNumber < gridWidth, "Column number out of range");
         ReentrantLock lock = gameLocks.get(gameId);
         if(lock==null) throw new GameDoesNotExistException();
         try {
