@@ -21,7 +21,7 @@ function getLowestFreeCellInAColumn(columnId) {
     for (var i = 0; i < 7; i++) {
         if (!column.cells[i].owner)return i;
     }
-    alert("shit happened: lowest cell cannot be found for column " + columnId);
+    console.warn("shit happened: lowest cell cannot be found for column " + columnId);
 }
 
 function changeColor(rowId, columnId, color) {
