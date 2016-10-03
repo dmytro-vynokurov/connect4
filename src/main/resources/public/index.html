@@ -36,7 +36,6 @@
 
         function getLowestFreeCellInAColumn(columnId) {
             var column = game.grid.columns[columnId];
-            console.log("with id "+columnId+" found column " + JSON.stringify(column));
 
             for (var i = 0; i < 7; i++) {
                 if (!column.cells[i].owner)return i;
@@ -47,7 +46,6 @@
         function changeColor(rowId, columnId, color) {
             var selector = "div.c4-rown" + rowId + " div.c4-coln" + columnId + " div.c4-circle";
             var circleElement = document.querySelector(selector);
-            console.log("with selector " + selector + " found " + circleElement);
             circleElement.className = "c4-circle c4-" + color;
         }
 
@@ -55,7 +53,6 @@
             var lowestFreeCellInAColumn = move.row;
             var currentRow = 6;
             var interval = setInterval(function () {
-                console.log("Interval running with row: " + currentRow + " and col: " + move.column);
                 if (currentRow != 6) changeColor(currentRow, move.column, "white");
                 currentRow--;
                 changeColor(currentRow, move.column, color);
@@ -65,10 +62,9 @@
                 }
                 if (currentRow < 0) {
                     clearInterval(interval);
-                    console.log("Shit happened - current row < 0");
+                    console.warn("Shit happened - current row < 0");
                 }
             }, 150);
-            console.log(color + " moves to " + move.column);
         }
 
         function userAction(columnId) {
@@ -76,11 +72,17 @@
             expectInput = false;
             postToServer("/api/game/" + game.id + "/" + columnId, function (response) {
                 game = response;
-                console.log(JSON.stringify(game));
-                drawMove("red", game.firstPlayerLastMove, function(){
-                    drawMove("yellow", game.secondPlayerLastMove);
-                    expectInput = true;
-                });
+                if(game.gameStatus == "IN_PROGRESS"){
+                    drawMove("red", game.firstPlayerLastMove, function(){
+                        drawMove("yellow", game.secondPlayerLastMove);
+                        expectInput = true;
+                    });
+                }else{
+                    if(game.gameStatus=="FIRST_PLAYER_WON") alert("You won! Press OK to start the new game");
+                    else alert("You lost! Press OK to start the new game");
+
+                    window.location = "/";
+                }
             });
         }
 
@@ -90,7 +92,6 @@
         postToServer("/api/game/initialize", function (response) {
             game = response;
             expectInput = true;
-            console.log(JSON.stringify(game));
         });
     </script>
 
