@@ -6,14 +6,15 @@ import com.dvynokurov.model.Grid;
 import com.dvynokurov.model.Player;
 import org.springframework.stereotype.Service;
 
+@SuppressWarnings("ForLoopReplaceableByForEach")
 @Service
 public class GameFinishedCheckingService {
 
     private static final int FOUR = 4;
 
-    public static final int NO_OWNER_INDEX = 0;
-    public static final int FIRST_PLAYER_INDEX = 1;
-    public static final int SECOND_PLAYER_INDEX = 2;
+    private static final int NO_OWNER_INDEX = 0;
+    private static final int FIRST_PLAYER_INDEX = 1;
+    private static final int SECOND_PLAYER_INDEX = 2;
 
     public boolean checkFinished(Grid grid, Player player) {
         int[][] matrix = convertToMatrix(grid);
