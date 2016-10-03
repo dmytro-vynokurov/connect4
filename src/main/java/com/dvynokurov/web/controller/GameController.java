@@ -4,6 +4,7 @@ import com.dvynokurov.model.Game;
 import com.dvynokurov.service.GameService;
 import com.dvynokurov.util.exceptions.ColumnFullException;
 import com.dvynokurov.util.exceptions.GameDoesNotExistException;
+import com.dvynokurov.util.exceptions.GridFullException;
 import com.dvynokurov.web.dto.ExceptionDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,12 @@ public class GameController {
     @RequestMapping(value = "/{gameId}", method = RequestMethod.GET)
     public Game getGameStatus(@PathVariable("gameId") UUID gameId) {
         return gameService.getGame(gameId);
+    }
+
+    @ExceptionHandler(GridFullException.class)
+    @ResponseStatus(HttpStatus.OK)
+    public ExceptionDto handleGridFullException(){
+        return new ExceptionDto("Grid is full");
     }
 
     @ExceptionHandler(value = ColumnFullException.class)
