@@ -45,7 +45,7 @@ function drawMove(color, move, callback) {
             clearInterval(interval);
             console.warn("Shit happened - current row < 0");
         }
-    }, 150);
+    }, 120);
 }
 
 function userAction(columnId) {
