@@ -59,10 +59,17 @@ function userAction(columnId) {
                 expectInput = true;
             });
         }else{
-            if(game.gameStatus=="FIRST_PLAYER_WON") alert("You won! Press OK to start the new game");
-            else alert("You lost! Press OK to start the new game");
+            if(game.gameStatus=="FIRST_PLAYER_WON") {
+                drawMove("red", game.firstPlayerLastMove, function(){
+                    alert("You won! Press OK to start the new game");
 
-            window.location = "/";
+                    window.location = "/";
+                });
+            } else {
+                alert("You lost! Press OK to start the new game");
+
+                window.location = "/";
+            }
         }
     });
 }
